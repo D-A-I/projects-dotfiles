@@ -37,7 +37,7 @@
  '(org-agenda-files nil)
  '(package-selected-packages
    (quote
-    (multi-term ac-emoji flycheck auto-complete quickrun ## rainbow-delimiters paredit lispxmp open-junk-file helm mozc))))
+    (org-preview-html company clj-refactor cider multi-term ac-emoji flycheck auto-complete quickrun ## rainbow-delimiters paredit lispxmp open-junk-file helm mozc))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -180,6 +180,10 @@
 ;;; multi-term
 (when (require 'multi-term nil t)
   (setq multi-term-program "/usr/local/bin/fish"))
+
+;; Clojure環境は、一旦"IntelliJ IDEA"にしておく
+; Clojure
+;(use-package clojure-mode)
 
 (provide 'init)
 ;;; init.el ends here
