@@ -21,10 +21,10 @@
   (let (path)
     (dolist (path paths paths)
       (let ((default-directory
-	      (expand-file-name (concat user-emacs-directory path))))
-	(add-to-list 'load-path default-directory)
-	(if (fboundp 'normal-top-level-add-subdirs-to-load-path)
-	    (normal-top-level-add-subdirs-to-load-path))))))
+              (expand-file-name (concat user-emacs-directory path))))
+        (add-to-list 'load-path default-directory)
+        (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
+            (normal-top-level-add-subdirs-to-load-path))))))
 
 ;; 引数のディレクトリとサブディレクトリをload-pathに追加
 (add-to-load-path "elisp" "conf" "public_repos")
@@ -69,6 +69,26 @@
 ; タブ関連
 (setq-default indent-tabs-mode nil) ; インデントにタブを使用しないようにする
 
+; 改行やタブ等を色付けする
+;(global-whitespace-mode 1)
+
+;;
+;; whitespace
+;;
+(require 'whitespace)
+(setq whitespace-style '(face           ; faceで可視化
+                         trailing       ; 行末
+                         tabs           ; タブ
+;;                       empty          ; 先頭/末尾の空行
+                         space-mark     ; 表示のマッピング
+                         tab-mark
+                         ))
+
+(setq whitespace-display-mappings
+      '((tab-mark ?\t [?\u00BB ?\t] [?\\ ?\t])))
+
+(global-whitespace-mode 1)
+
 ; キーバインド
 ;; C-mにnew-line-and-indentを割当て
 (global-set-key (kbd "C-m") 'newline-and-indent)
@@ -95,8 +115,8 @@
 
 ; 最近使ったファイルを自動保存する
 (require 'recentf)
-(setq recentf-save-file "~/.recentf")	; 最近開いたファイルの保存先
-(setq recentf-exclude '(".recentf"))	; .recentfに含めないファイル
+(setq recentf-save-file "~/.recentf")   ; 最近開いたファイルの保存先
+(setq recentf-exclude '(".recentf"))    ; .recentfに含めないファイル
 (run-with-idle-timer 30 t 'recentf-save-list)
 (recentf-mode t)
 
@@ -180,6 +200,28 @@
 ;;; multi-term
 (when (require 'multi-term nil t)
   (setq multi-term-program "/usr/local/bin/fish"))
+
+;; system-type predicates
+;; from http://d.hatena.ne.jp/tomoya/20090807/1249601308
+(setq darwin-p   (eq system-type 'darwin)
+      linux-p    (eq system-type 'gnu/linux)
+      carbon-p   (eq system-type 'mac)
+      meadow-p   (featurep 'meadow))
+
+; Emacs と Mac のクリップボード共有
+; from http://hakurei-shain.blogspot.com/2010/05/mac.html
+(defun copy-from-osx ()
+  (shell-command-to-string "pbpaste"))
+
+(defun paste-to-osx (text &optional push)
+  (let ((process-connection-type nil))
+    (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+      (process-send-string proc text)
+      (process-send-eof proc))))
+
+(if (or darwin-p carbon-p)
+    (setq interprogram-cut-function 'paste-to-osx)
+  (setq interprogram-paste-function 'copy-from-osx))
 
 ;; Clojure環境は、一旦"IntelliJ IDEA"にしておく
 ; Clojure
